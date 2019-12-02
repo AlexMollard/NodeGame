@@ -10,6 +10,11 @@ public class NodeManager : MonoBehaviour
     public GameObject NodePrefab;
     public List<Node> Nodes;
 
+	bool MouseUp = true;
+	bool MovingNode = false;
+	bool Second = false;
+	Node NodeBeingMoved = null;
+
     void Start()
     {
         Nodes = new List<Node>();
@@ -37,7 +42,25 @@ public class NodeManager : MonoBehaviour
             {
                 CreateNode(screenPoint);
             }
-        }
+			MouseUp = true;
+			NodeBeingMoved = null;
+		}
+        else if (Input.GetMouseButton(0) && MouseUp)
+		{
+			MouseUp = false;
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				if (Nodes[i].isPressed)
+				{
+					MovingNode = true;
+					NodeBeingMoved = Nodes[i];
+				}
+			}
+		}
+		else if (MovingNode && NodeBeingMoved)
+		{
+			NodeBeingMoved.UpdateNode();
+		}
     }
 
 
@@ -49,24 +72,39 @@ public class NodeManager : MonoBehaviour
         newNodeObject.name = "Node: " + screenPoint;
         Node NewNode = newNodeObject.GetComponent<Node>();
 
-        if (Nodes.Count > 0)
-        {
-            float ClosestDistance = float.MaxValue;
-            Node ClosestNode = null;
-            for (int i = 0; i < Nodes.Count; i++)
-            {
-                if (Vector2.Distance(Nodes[i].transform.position, NewNode.transform.position) < ClosestDistance)
-                {
-                    ClosestDistance = Vector2.Distance(Nodes[i].transform.position, NewNode.transform.position);
-                    ClosestNode = Nodes[i];
-                }
-            }
 
-            NewNode.AddConnection(ClosestNode);
-            ClosestNode.AddConnection(NewNode);
 
-            NewNode.createConnection();
-        }
-        Nodes.Add(NewNode);
+		if (Nodes.Count > 0)
+		{
+			float ClosestDistance = float.MaxValue;
+			Node ClosestNode = null;
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				if (Vector2.Distance(Nodes[i].transform.position, NewNode.transform.position) < ClosestDistance)
+				{
+					ClosestDistance = Vector2.Distance(Nodes[i].transform.position, NewNode.transform.position);
+					ClosestNode = Nodes[i];
+				}
+			}
+
+			NewNode.AddConnection(ClosestNode);
+			ClosestNode.AddConnection(NewNode);
+
+
+			Color newCol;
+
+			if (ClosestNode.NodeColor == new Color(0.2f, 0.7f, 0.2f))
+				newCol = new Color(0.7f, 0.2f, 0.2f);
+			else
+				newCol = new Color(0.2f, 0.7f, 0.2f);
+
+			NewNode.NodeColor = newCol;
+
+			NewNode.createConnection();
+		}
+		else
+			NewNode.NodeColor = new Color(0.7f, 0.2f, 0.2f);
+
+		Nodes.Add(NewNode);
     }
 }

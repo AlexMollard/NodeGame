@@ -8,12 +8,18 @@ public class Node : MonoBehaviour
     public LineRenderer Line;
     public bool CanGive = false;
     public bool isPressed = false;
+	public Color NodeColor = Color.white;
+	public Renderer renderer;
     // Start is called before the first frame update
     void Awake()
     {
         ConnectedNodes = new List<Node>();
     }
-    List<Node> GetConnectedNodes()
+	private void Start()
+	{
+		renderer.material.color = NodeColor;
+	}
+	List<Node> GetConnectedNodes()
     {
         return null;
     }
@@ -28,11 +34,14 @@ public class Node : MonoBehaviour
         for (int i = 0; i < ConnectedNodes.Count; i++)
         {
             poses.Add(ConnectedNodes[i].transform.position);
+			poses[i] = new Vector3(poses[i].x, poses[i].y, 0.1f);
         }
         Vector3[] newPostitions = poses.ToArray();
+		Line.startColor = NodeColor;
+		Line.endColor = ConnectedNodes[0].NodeColor;
         Line.SetPositions(newPostitions);
     }
-    private void Update()
+    public void UpdateNode()
     {
         if (isPressed)
         {
